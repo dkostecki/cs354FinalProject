@@ -1,0 +1,105 @@
+/* CS 354 - Digital Design
+   Template for the CPU project (Project 3)
+
+   This file compiles. Don't change the existing code, only add more code 
+   using the instructions given as comment.
+*/
+
+module cpu (Instruction, WriteData, CLK);
+   input [8:0] Instruction;
+   input CLK;
+   output [3:0] WriteData;
+
+   wire [3:0] A,B;
+   wire [8:0] IR;
+// Declare more wires as needed
+
+
+/* The instruction register is instantiated below. You have to provide 
+   the module definition (the module header and ports are already provided
+   below). The OP code and other fiels of this register that have to be 
+   passed to other modules must be represented by their respective 
+   indices (see the register file instance below).
+*/
+   instr_reg instr(Instruction,IR,CLK);
+
+
+// Define a module for the quadruple 2x1 mux and instatiate it here.
+
+
+// Define a module for the LI decoder and instantiate it here.
+
+
+// register file (the module definition is incuded in this file)
+
+   regfile regs(IR[5:4],IR[3:2],IR[1:0],WriteData,A,B,CLK);
+
+
+// Define a module for the ALU and instantiate it here.
+
+
+endmodule
+
+
+// Instruction register. Must be completed. 
+
+module instr_reg (Instruction,IR,CLK);
+   input [8:0] Instruction;
+   input CLK;
+   output [8:0] IR;
+
+// add D flip-flops here  
+
+endmodule
+
+
+
+/* 4-bit register file implemented in behavioral modeling (don't change it). 
+   Dont't use behavioral modeling for the other CPU modules. They 
+   must be implemented at gate level (no reg data, assign, and always).
+*/
+
+module regfile (ReadReg1,ReadReg2,WriteReg,WriteData,ReadData1,ReadData2,CLK);
+  input [1:0] ReadReg1,ReadReg2,WriteReg;
+  input [3:0] WriteData;
+  input CLK;
+  output [3:0] ReadData1,ReadData2;
+  reg [3:0] Regs[0:3]; 
+  assign ReadData1 = Regs[ReadReg1];
+  assign ReadData2 = Regs[ReadReg2];
+  initial Regs[0] = 0;
+  always @(negedge CLK)
+     Regs[WriteReg] <= WriteData;
+endmodule
+
+
+// Test module. Add more instructions as provided in the test program.
+
+module test_cpu;
+   reg [8:0] Instruction;
+   reg CLK;
+   wire [3:0] WriteData;
+   cpu cpu1 (Instruction, WriteData, CLK);
+
+   initial
+   begin
+         Instruction = 9'b100111110; // LI  $2, 15  # load decimal 15 in $2
+      #1 CLK=1;
+      #1 CLK=0; // negative edge - execute instruction
+
+/* Add machine code for the test program instructions here.
+   Use the format shown above. Pay attention to the register
+   order - the destination register is first in the assembly code
+   and last (LSB) in the machine code.
+   After each instruction a negative edge must be generated.
+*/
+
+   end
+
+   initial
+   begin
+      $display("\nCLK Instruction WriteData\n-------------------------"); 
+      $monitor("%b   %b   %b", CLK, Instruction, WriteData);
+   end
+
+endmodule
