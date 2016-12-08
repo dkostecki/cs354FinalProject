@@ -5,26 +5,6 @@
    using the instructions given as comment.
 */
 
-module cpu (Instruction, WriteData, CLK);
-   input [8:0] Instruction;
-   input CLK;
-   output [3:0] WriteData;
-
-   wire [3:0] A,B;
-   wire [8:0] IR;
-// Declare more wires as needed
-
-
-/* The instruction register is instantiated below. You have to provide 
-   the module definition (the module header and ports are already provided
-   below). The OP code and other fiels of this register that have to be 
-   passed to other modules must be represented by their respective 
-   indices (see the register file instance below).
-*/
-   instr_reg instr(Instruction,IR,CLK);
-
-
-// Define a module for the quadruple 2x1 mux and instatiate it here.
 module quad_mux (A,B,S,E,Y);
 	input [3:0] A,B;
 	input S,E;
@@ -46,6 +26,28 @@ module quad_mux (A,B,S,E,Y);
 			o3(Y[2],ya,yb),
 			o1(Y[3],za,zb);
 endmodule
+
+module cpu (Instruction, WriteData, CLK);
+   input [8:0] Instruction;
+   input CLK;
+   output [3:0] WriteData;
+
+   wire [3:0] A,B;
+   wire [8:0] IR;
+// Declare more wires as needed
+
+
+/* The instruction register is instantiated below. You have to provide 
+   the module definition (the module header and ports are already provided
+   below). The OP code and other fiels of this register that have to be 
+   passed to other modules must be represented by their respective 
+   indices (see the register file instance below).
+*/
+   instr_reg instr(Instruction,IR,CLK);
+
+
+// Define a module for the quadruple 2x1 mux and instatiate it here.
+
 // Define a module for the LI decoder and instantiate it here.
 
 
