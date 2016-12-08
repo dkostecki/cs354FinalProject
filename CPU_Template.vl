@@ -4,6 +4,73 @@
    This file compiles. Don't change the existing code, only add more code 
    using the instructions given as comment.
 */
+module adder(X,Y,Z,S,C);
+	input X,Y,Z;
+	output S,C;
+	wire a,b,c,d,e;
+	xor		g1(a,X,Y),
+			g2(S,a,Z);
+	and		g3(b,X,Y),
+			g4(c,X,Z),
+			g5(d,Y,Z);
+	or		g6(e,b,c),
+			g7(C,e,d);
+endmodule
+
+module two_input_mux(S,I0,I1,Y);
+	input S,I0,I1;
+	output Y;
+	wire x,y;
+	and g1 (x,I0,!S),
+		g2 (y,I1,S);
+	or	g4 (Y,x,y);
+endmodule
+
+module alu(A,B,Less,Bin,Cin,O,Cout,Result);
+	input A,B,Less,Bin,Cin;
+	input[1:0] O;
+	output Result,Cout;
+	wire u,v,w,x,y,z;
+	two_input_mux 	m1 (Bin,B,!B,x);
+	and				g1 (y,A,x);
+	or				g2 (z,A,x);
+	adder			a1 (A,x,Cin,w,Cout);
+	two_input_mux	m2 (O[0],y,z,v),
+					m3 (O[0],w,Less,u),
+					m4 (O[1],v,u,Result);
+endmodule
+
+module sig_alu(A,B,Less,Bin,Cin,O,Result,Set,Overflow);
+	input A,B,Less,Bin,Cin;
+	input[1:0] O;
+	output Result,Set,Overflow;
+	wire t,u,v,w,x,y,z;
+	two_input_mux 	m1 (Bin,B,!B,x);
+	and				g1 (y,A,x);
+	or				g2 (z,A,x);
+	adder			a1 (A,x,Cin,w,t);
+	two_input_mux	m2 (O[0],y,z,v),
+					m3 (O[0],w,Less,u),
+					m4 (O[1],v,u,Result);
+	xor				x1 (Overflow,Bin,A,x,t,w);
+	and				g3(Set,w,w);
+endmodule
+
+module full_alu(Bin,O,A,B,Result,Zero,Overflow);
+	input[3:0] A;
+	input[3:0] B;
+	input[1:0] O;
+	input Bin;
+	output[3:0] Result;
+	output Zero,Overflow;
+	wire set,x,y,z,ze;
+	alu			alu0 (A[0],B[0],set,Bin,Bin,O,x,Result[0]),
+				alu1 (A[1],B[1],1'b0,Bin,x,O,y,Result[1]),
+				alu2 (A[2],B[2],1'b0,Bin,y,O,z,Result[2]);
+	sig_alu 	alu3 (A[3],B[3],1'b0,Bin,z,O,Result[3],set,Overflow);
+	or			m1	 (ze,Result[0],Result[1],Result[2],Result[3]);
+	not 		not1 (Zero,ze);
+endmodule
 
 module quad_mux (A,B,S,E,Y);
 	input [3:0] A,B;
