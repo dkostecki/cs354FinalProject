@@ -21,10 +21,18 @@ module quad_mux (A,B,S,E,Y);
 			a6(xb,B[1],S,!E),
 			a7(yb,B[2],S,!E),
 			a8(zb,B[3],S,!E);
+			
 	or		o1(Y[0],wa,wb),
 			o2(Y[1],xa,xb),
 			o3(Y[2],ya,yb),
 			o1(Y[3],za,zb);
+endmodule
+
+module li_decoder (X,Y,Z,F);
+	input X,Y,Z;
+	output F;
+	
+	and 	a1(F,X,!Y,!Z);
 endmodule
 
 module cpu (Instruction, WriteData, CLK);
