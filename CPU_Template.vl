@@ -25,8 +25,27 @@ module cpu (Instruction, WriteData, CLK);
 
 
 // Define a module for the quadruple 2x1 mux and instatiate it here.
-
-
+module quad_mux (A,B,S,E,Y);
+	input [3:0] A,B;
+	input S,E;
+	output [3:0] Y;
+	
+	wire wa,xa,ya,za,wb,xb,yb,zb,aa,ba,ca,da,ab,bb,cb,db;
+	
+	and 	a1(wa,A[0],!S,!E),
+			a2(xa,A[1],!S,!E),
+			a3(ya,A[2],!S,!E),
+			a4(za,A[3],!S,!E),
+			
+			a5(wb,B[0],S,!E),
+			a6(xb,B[1],S,!E),
+			a7(yb,B[2],S,!E),
+			a8(zb,B[3],S,!E);
+	or		o1(Y[0],wa,wb),
+			o2(Y[1],xa,xb),
+			o3(Y[2],ya,yb),
+			o1(Y[3],za,zb);
+endmodule
 // Define a module for the LI decoder and instantiate it here.
 
 
