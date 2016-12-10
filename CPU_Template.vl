@@ -168,7 +168,15 @@ module instr_reg (Instruction,IR,CLK);
    output [8:0] IR;
 
 // add D flip-flops here  
-
+	D_flip_flop		d1 (Instruction[0],CLK,IR[0]),
+					d2 (Instruction[1],CLK,IR[1]),
+					d3 (Instruction[2],CLK,IR[2]),
+					d4 (Instruction[3],CLK,IR[3]),
+					d5 (Instruction[4],CLK,IR[4]),
+					d6 (Instruction[5],CLK,IR[5]),
+					d7 (Instruction[6],CLK,IR[6]),
+					d8 (Instruction[7],CLK,IR[7]),
+					d9 (Instruction[8],CLK,IR[8]);
 endmodule
 
 
