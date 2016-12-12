@@ -132,6 +132,9 @@ module cpu (Instruction, WriteData, CLK);
 
    wire [3:0] A,B;
    wire [8:0] IR;
+   wire [3:0] aluOut;
+   wire Li;
+   wire z,o;
 // Declare more wires as needed
 
 
@@ -141,22 +144,25 @@ module cpu (Instruction, WriteData, CLK);
    passed to other modules must be represented by their respective 
    indices (see the register file instance below).
 */
-   instr_reg instr(Instruction,IR,CLK);
+	instr_reg 	instr(Instruction,IR,CLK);
 
 
 // Define a module for the quadruple 2x1 mux and instatiate it here.
 
+	quad_mux	qmux(IR[5:2],aluOut[3:0],Li,1'b0,WriteData[3:0]);
+
 // Define a module for the LI decoder and instantiate it here.
 
+	li_decoder	lid(Instruction[8],Instruction[7],Instruction[6],Li);
 
 // register file (the module definition is incuded in this file)
 
-   regfile regs(IR[5:4],IR[3:2],IR[1:0],WriteData,A,B,CLK);
+	regfile 	regs(IR[5:4],IR[3:2],IR[1:0],WriteData,A,B,CLK);
 
 
 // Define a module for the ALU and instantiate it here.
-
-
+	full_alu	alus(IR[8],IR[7:6],A,B,aluOut[3:0],z,o);
+	//full_alu(Bin,O,A,B,Result,Zero,Overflow);
 endmodule
 
 
@@ -168,15 +174,15 @@ module instr_reg (Instruction,IR,CLK);
    output [8:0] IR;
 
 // add D flip-flops here  
-	D_flip_flop		d1 (Instruction[0],CLK,IR[0]),
-					d2 (Instruction[1],CLK,IR[1]),
-					d3 (Instruction[2],CLK,IR[2]),
-					d4 (Instruction[3],CLK,IR[3]),
-					d5 (Instruction[4],CLK,IR[4]),
-					d6 (Instruction[5],CLK,IR[5]),
-					d7 (Instruction[6],CLK,IR[6]),
-					d8 (Instruction[7],CLK,IR[7]),
-					d9 (Instruction[8],CLK,IR[8]);
+	D_flip_flop		d0 (Instruction[0],CLK,IR[0]),
+					d1 (Instruction[1],CLK,IR[1]),
+					d2 (Instruction[2],CLK,IR[2]),
+					d3 (Instruction[3],CLK,IR[3]),
+					d4 (Instruction[4],CLK,IR[4]),
+					d5 (Instruction[5],CLK,IR[5]),
+					d6 (Instruction[6],CLK,IR[6]),
+					d7 (Instruction[7],CLK,IR[7]),
+					d8 (Instruction[8],CLK,IR[8]);
 endmodule
 
 
@@ -210,10 +216,30 @@ module test_cpu;
 
    initial
    begin
-         Instruction = 9'b100111110; // LI  $2, 15  # load decimal 15 in $2
-      #1 CLK=1;
-      #1 CLK=0; // negative edge - execute instruction
-
+			Instruction = 9'b100111110; // LI  $2, 15  # load decimal 15 in $2
+		#1 CLK=1;
+		#1 CLK=0; // negative edge - execute instruction
+			Instruction = 9'b100100011; // LI  $3, 8  # load decimal 8 in $3
+		#1 CLK=1;
+		#1 CLK=0; // negative edge - execute instruction
+			Instruction = 9'b000101101; // AND $1, $2, $3   # $1 = $2 AND $3 (two's complement -8) 
+		#1 CLK=1;
+		#1 CLK=0; // negative edge - execute instruction
+			Instruction = 9'b110011011; // SUB $3, $1, $2   # $3 = $1 - $2 = -8 - (-1) = -7 
+		#1 CLK=1;
+		#1 CLK=0; // negative edge - execute instruction
+			Instruction = 9'b111110010; // SLT $2, $3, $0   # $2 = 1 ($3 < 0)
+		#1 CLK=1;
+		#1 CLK=0; // negative edge - execute instruction
+	  		Instruction = 9'b010101101; // ADD $1, $2, $3   # $1 = $2 + $3 = 1 + (-7) = -6
+		#1 CLK=1;
+		#1 CLK=0; // negative edge - execute instruction
+			Instruction = 9'b110000101; // SUB $1, $0, $1   # $1 = $0 - $1 = 0 - (-6) = 6 
+		#1 CLK=1;
+		#1 CLK=0; // negative edge - execute instruction
+			Instruction = 9'b001011011; // OR  $3, $1, $2   # $3 = $1 OR $2 = 7
+		#1 CLK=1;
+		#1 CLK=0; // negative edge - execute instruction
 /* Add machine code for the test program instructions here.
    Use the format shown above. Pay attention to the register
    order - the destination register is first in the assembly code
